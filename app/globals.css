@@ -1,0 +1,114 @@
+/* tailwind base styles */
+@tailwind base;
+/* tailwind component styles */
+@tailwind components;
+/* tailwind utility styles */
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 180 14% 97%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 355 85% 50%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 214 32% 91%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 196 83% 45%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 355 85% 50%;
+    --chart-1: 355 85% 50%;
+    --chart-2: 196 83% 45%;
+    --chart-3: 222 47% 31%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 267 83% 60%;
+    --radius: 0.5rem;
+  }
+  
+  .dark {
+    --background: 180 7% 95%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 355 85% 50%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 214 32% 91%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 196 83% 45%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 355 85% 50%;
+    --chart-1: 355 85% 50%;
+    --chart-2: 196 83% 45%;
+    --chart-3: 222 47% 31%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 267 83% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px rgba(255, 59, 78, 0.3), 0 0 20px rgba(255, 59, 78, 0.2);
+  }
+  
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-600;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-md hover:shadow-primary/10 hover:-translate-y-1;
+  }
+  
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/70 border border-white/20;
+  }
+  
+  .frost-effect {
+    @apply backdrop-blur-md bg-white/80 border border-white/40 shadow-sm;
+  }
+}
