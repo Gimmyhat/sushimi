@@ -14,22 +14,25 @@ export interface Database {
           id: string
           name: string
           slug: string
+          description: string | null
           image_url: string | null
-          created_at: string
+          created_at: string | null
         }
         Insert: {
-          id?: string
+          id: string
           name: string
           slug: string
+          description?: string | null
           image_url?: string | null
-          created_at?: string
+          created_at?: string | null
         }
         Update: {
           id?: string
           name?: string
           slug?: string
+          description?: string | null
           image_url?: string | null
-          created_at?: string
+          created_at?: string | null
         }
         Relationships: []
       }
@@ -126,21 +129,21 @@ export interface Database {
           description: string | null
           price: number
           weight: string | null
-          image_url: string | null
-          category_id: string | null
           is_available: boolean
-          created_at: string
+          category_id: string | null
+          image_url: string | null
+          created_at: string | null
         }
         Insert: {
-          id?: string
+          id: string
           name: string
           description?: string | null
           price: number
           weight?: string | null
-          image_url?: string | null
-          category_id?: string | null
           is_available?: boolean
-          created_at?: string
+          category_id?: string | null
+          image_url?: string | null
+          created_at?: string | null
         }
         Update: {
           id?: string
@@ -148,10 +151,10 @@ export interface Database {
           description?: string | null
           price?: number
           weight?: string | null
-          image_url?: string | null
-          category_id?: string | null
           is_available?: boolean
-          created_at?: string
+          category_id?: string | null
+          image_url?: string | null
+          created_at?: string | null
         }
         Relationships: [
           {
@@ -167,37 +170,37 @@ export interface Database {
           id: string
           title: string
           description: string | null
-          image_url: string | null
           promo_code: string | null
-          discount_percent: number
+          discount_percent: number | null
           start_date: string | null
           end_date: string | null
           is_active: boolean
-          created_at: string
+          image_url: string | null
+          created_at: string | null
         }
         Insert: {
-          id?: string
+          id: string
           title: string
           description?: string | null
-          image_url?: string | null
           promo_code?: string | null
-          discount_percent: number
+          discount_percent?: number | null
           start_date?: string | null
           end_date?: string | null
           is_active?: boolean
-          created_at?: string
+          image_url?: string | null
+          created_at?: string | null
         }
         Update: {
           id?: string
           title?: string
           description?: string | null
-          image_url?: string | null
           promo_code?: string | null
-          discount_percent?: number
+          discount_percent?: number | null
           start_date?: string | null
           end_date?: string | null
           is_active?: boolean
-          created_at?: string
+          image_url?: string | null
+          created_at?: string | null
         }
         Relationships: []
       }
