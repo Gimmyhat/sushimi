@@ -12,7 +12,8 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { useCart } from '@/components/cart-provider'
-import { createOrder } from '@/lib/api'
+import { createOrder, OrderData } from '@/lib/api'
+import { OrderStatus, PaymentMethod } from '@/types/order'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -60,9 +61,8 @@ export default function CheckoutPage() {
     
     try {
       // Создание заказа
-      const orderData = {
-        user_id: null, // В будущем здесь будет ID авторизованного пользователя
-        status: 'pending',
+      const orderData: OrderData = {
+        user_id: undefined, // В будущем здесь будет ID авторизованного пользователя
         total,
         address: formData.address,
         phone: formData.phone,

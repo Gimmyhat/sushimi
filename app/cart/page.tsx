@@ -34,7 +34,7 @@ export default function CartPage() {
       
       if (promo) {
         setPromoApplied(true)
-        const discountAmount = Math.round(subtotal * (promo.discount_percent / 100))
+        const discountAmount = Math.round(subtotal * ((promo.discount_percent ?? 0) / 100))
         setDiscount(discountAmount)
       } else {
         setPromoError('Промокод недействителен или срок его действия истек')

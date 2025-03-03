@@ -1,25 +1,79 @@
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 
-// Создаем пул соединений с PostgreSQL
-const pool = new Pool({
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'postgres',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: parseInt(process.env.POSTGRES_PORT || '5432'),
-  database: process.env.POSTGRES_DB || 'sushi_db',
-});
+// Определение пула соединений, который может использоваться повторно
+let pool: Pool | null = null;
 
-// Функция для выполнения запросов
-export async function query(text: string, params?: any[]) {
+// Таймаут для повторных попыток подключения в мс
+const RETRY_TIMEOUT = 500;
+const MAX_RETRIES = 5;
+
+// Функция для получения пула соединений
+export function getPool(): Pool {
+  if (pool) return pool;
+
+  // Используем строку подключения, если она доступна (Vercel с Neon)
+  if (process.env.DATABASE_URL) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.USE_SSL === 'false' ? false : { rejectUnauthorized: false },
+      max: 20, // уменьшаем для serverless
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
+  } else {
+    // Используем индивидуальные параметры (локальное окружение)
+    pool = new Pool({
+      user: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      host: process.env.POSTGRES_HOST,
+      port: parseInt(process.env.POSTGRES_PORT || '5432'),
+      database: process.env.POSTGRES_DATABASE || process.env.POSTGRES_DB,
+      ssl: process.env.USE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      max: 20, 
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
+  }
+
+  // Обработка ошибок подключения
+  pool.on('error', (err) => {
+    console.error('Unexpected error on idle client', err);
+    pool = null;
+  });
+
+  return pool;
+}
+
+// Функция для выполнения запросов с повторными попытками
+export async function query(text: string, params?: any[], retries = 0): Promise<any> {
+  const currentPool = getPool();
+  let client: PoolClient | null = null;
+
   try {
-    const start = Date.now();
-    const res = await pool.query(text, params);
-    const duration = Date.now() - start;
-    console.log('Выполнен запрос', { text, duration, rows: res.rowCount });
-    return res;
-  } catch (error) {
-    console.error('Ошибка при выполнении запроса', error);
+    client = await currentPool.connect();
+    const result = await client.query(text, params);
+    return result;
+  } catch (error: any) {
+    // Если ошибка связана с подключением и не превышено количество попыток, повторяем
+    if (error.code === 'ECONNREFUSED' && retries < MAX_RETRIES) {
+      console.warn(`Подключение не удалось, повторная попытка ${retries + 1}/${MAX_RETRIES}...`);
+      await new Promise(resolve => setTimeout(resolve, RETRY_TIMEOUT));
+      return query(text, params, retries + 1);
+    }
+    
+    // Проверка на истечение срока действия соединения
+    if (error.code === '57P01' && retries < MAX_RETRIES) {
+      console.warn(`Соединение было разорвано, повторная попытка ${retries + 1}/${MAX_RETRIES}...`);
+      // Сбросить глобальный пул соединений
+      pool = null;
+      await new Promise(resolve => setTimeout(resolve, RETRY_TIMEOUT));
+      return query(text, params, retries + 1);
+    }
+    
+    console.error('Ошибка при выполнении запроса:', error);
     throw error;
+  } finally {
+    if (client) client.release();
   }
 }
 
