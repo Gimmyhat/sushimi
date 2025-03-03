@@ -72,11 +72,29 @@ export async function getAllProducts() {
 // Функция для получения популярных продуктов
 export async function getPopularProducts(limit = 4) {
   try {
+    // Выбираем популярные продукты из разных категорий
     const result = await query(
-      `SELECT p.*, c.name as category_name, c.slug as category_slug 
-       FROM products p 
-       JOIN categories c ON p.category_id = c.id 
-       WHERE p.is_available = true 
+      `WITH ProductsByCategory AS (
+         SELECT 
+           p.*,
+           c.name as category_name,
+           c.slug as category_slug,
+           ROW_NUMBER() OVER (PARTITION BY c.slug ORDER BY p.name) as row_num
+         FROM products p 
+         JOIN categories c ON p.category_id = c.id 
+         WHERE p.is_available = true
+       )
+       SELECT * FROM ProductsByCategory
+       WHERE (category_slug = 'rolls' AND row_num <= 2)
+          OR (category_slug = 'sets' AND row_num = 1)
+          OR (category_slug = 'sushi' AND row_num = 1)
+       ORDER BY 
+         CASE 
+           WHEN category_slug = 'rolls' THEN 1
+           WHEN category_slug = 'sets' THEN 2
+           WHEN category_slug = 'sushi' THEN 3
+           ELSE 4
+         END
        LIMIT $1`,
       [limit]
     );
@@ -208,4 +226,25 @@ export async function checkPromoCode(promoCode: string) {
     console.error('Ошибка при проверке промокода:', error);
     return null;
   }
+}
+
+// При необходимости добавьте эту функцию в начало файла
+export function getLocalImageUrl(path: string): string {
+  // Если URL уже полный (начинается с http или https), возвращаем его без изменений
+  if (path && (path.startsWith('http://') || path.startsWith('https://'))) {
+    return path;
+  }
+  
+  // Если путь начинается с "/", убираем "/"
+  if (path && path.startsWith('/')) {
+    path = path.substring(1);
+  }
+  
+  // Если путь не указан, возвращаем путь к изображению по умолчанию
+  if (!path) {
+    return '/images/default-product.jpg';
+  }
+  
+  // Возвращаем локальный путь
+  return `/${path}`;
 } 

@@ -112,3 +112,19 @@
     @apply backdrop-blur-md bg-white/80 border border-white/40 shadow-sm;
   }
 }
+
+/* Swiper styles */
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.swiper-fade .swiper-slide-active {
+  z-index: 10;
+}

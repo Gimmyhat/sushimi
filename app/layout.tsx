@@ -1,17 +1,24 @@
 import './globals.css';
+// Импорт стилей Swiper глобально
+import 'swiper/css';
+import 'swiper/css/effect-fade';
+import 'swiper/css/autoplay';
+
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { CartProvider } from '@/components/cart-provider';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
-import { Toaster } from '@/components/ui/toaster';
+import MainLayout from '@/components/layouts/MainLayout';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
 export const metadata: Metadata = {
-  title: 'СушиМи - Современная доставка суши и роллов',
-  description: 'Премиальная доставка свежих суши и роллов в Иркутске. Изысканный вкус, стильная подача, быстрая доставка.',
+  title: 'СушиМи - Доставка суши и роллов',
+  description: 'Самые вкусные и свежие суши и роллы с доставкой',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
 };
 
 export default function RootLayout({
@@ -21,15 +28,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <CartProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
-            <Toaster />
+            <MainLayout>{children}</MainLayout>
           </CartProvider>
         </ThemeProvider>
       </body>

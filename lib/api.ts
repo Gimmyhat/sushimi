@@ -1,11 +1,24 @@
+import { 
+  Category, 
+  Product, 
+  Promotion, 
+  Order,
+  OrderItem,
+  CategoriesResponse,
+  ProductsResponse,
+  PromotionsResponse,
+  ApiResponse
+} from '@/types';
+
 // Функция для получения категорий
-export async function getCategories() {
+export async function getCategories(): Promise<Category[]> {
   try {
     const response = await fetch('/api/categories');
     if (!response.ok) {
       throw new Error('Ошибка при получении категорий');
     }
-    return await response.json();
+    const data: CategoriesResponse = await response.json();
+    return data.data || [];
   } catch (error) {
     console.error('Error fetching categories:', error);
     return [];
@@ -13,13 +26,14 @@ export async function getCategories() {
 }
 
 // Функция для получения продуктов по категории
-export async function getProductsByCategory(categorySlug: string) {
+export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
   try {
     const response = await fetch(`/api/products/category?slug=${categorySlug}`);
     if (!response.ok) {
       throw new Error(`Ошибка при получении продуктов для категории ${categorySlug}`);
     }
-    return await response.json();
+    const data: ProductsResponse = await response.json();
+    return data.data || [];
   } catch (error) {
     console.error(`Error fetching products for category ${categorySlug}:`, error);
     return [];
@@ -27,13 +41,14 @@ export async function getProductsByCategory(categorySlug: string) {
 }
 
 // Функция для получения популярных продуктов
-export async function getPopularProducts() {
+export async function getPopularProducts(): Promise<Product[]> {
   try {
     const response = await fetch('/api/products/popular');
     if (!response.ok) {
       throw new Error('Ошибка при получении популярных продуктов');
     }
-    return await response.json();
+    const data: ProductsResponse = await response.json();
+    return data.data || [];
   } catch (error) {
     console.error('Error fetching popular products:', error);
     return [];
@@ -41,13 +56,14 @@ export async function getPopularProducts() {
 }
 
 // Функция для получения акций
-export async function getPromotions() {
+export async function getPromotions(): Promise<Promotion[]> {
   try {
     const response = await fetch('/api/promotions');
     if (!response.ok) {
       throw new Error('Ошибка при получении акций');
     }
-    return await response.json();
+    const data: PromotionsResponse = await response.json();
+    return data.data || [];
   } catch (error) {
     console.error('Error fetching promotions:', error);
     return [];
@@ -55,7 +71,7 @@ export async function getPromotions() {
 }
 
 // Функция для проверки промокода
-export async function checkPromoCode(promoCode: string) {
+export async function checkPromoCode(promoCode: string): Promise<Promotion | null> {
   try {
     const response = await fetch(`/api/promo/check?code=${promoCode}`);
     if (!response.ok) {
@@ -64,15 +80,30 @@ export async function checkPromoCode(promoCode: string) {
       }
       throw new Error('Ошибка при проверке промокода');
     }
-    return await response.json();
+    const data: ApiResponse<Promotion> = await response.json();
+    return data.data || null;
   } catch (error) {
     console.error('Error checking promo code:', error);
     return null;
   }
 }
 
+// Типы для данных заказа
+export interface OrderData {
+  user_id?: string;
+  address: string;
+  phone: string;
+  payment_method: string;
+  delivery_time: string;
+  comment?: string;
+  total: number;
+}
+
 // Функция для создания заказа
-export async function createOrder(orderData: any, orderItems: any[]) {
+export async function createOrder(
+  orderData: OrderData, 
+  orderItems: Omit<OrderItem, 'id' | 'order_id' | 'created_at'>[]
+): Promise<Order | null> {
   try {
     const response = await fetch('/api/orders', {
       method: 'POST',
@@ -86,7 +117,8 @@ export async function createOrder(orderData: any, orderItems: any[]) {
       throw new Error('Ошибка при создании заказа');
     }
     
-    return await response.json();
+    const data: ApiResponse<Order> = await response.json();
+    return data.data || null;
   } catch (error) {
     console.error('Error creating order:', error);
     throw error;

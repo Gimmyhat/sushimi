@@ -76,12 +76,58 @@ INSERT INTO categories (name, slug, image_url) VALUES
 ('Напитки', 'drinks', '/images/categories/drinks.jpg');
 
 -- Добавление тестовых данных для продуктов
+-- Роллы
 INSERT INTO products (name, description, price, weight, image_url, category_id, is_available) VALUES
-('Филадельфия', 'Лосось, сливочный сыр, огурец, рис, нори', 499, '250г', '/images/products/philadelphia.jpg', (SELECT id FROM categories WHERE slug = 'rolls'), true),
-('Калифорния', 'Краб, авокадо, огурец, икра тобико, рис, нори', 450, '230г', '/images/products/california.jpg', (SELECT id FROM categories WHERE slug = 'rolls'), true),
-('Лосось', 'Суши с лососем', 120, '40г', '/images/products/salmon.jpg', (SELECT id FROM categories WHERE slug = 'sushi'), true),
-('Сет "Филадельфия"', 'Филадельфия, Калифорния, Аляска - 24 шт', 1299, '950г', '/images/products/philadelphia-set.jpg', (SELECT id FROM categories WHERE slug = 'sets'), true),
-('Кола', 'Coca-Cola 0.5л', 99, '0.5л', '/images/products/cola.jpg', (SELECT id FROM categories WHERE slug = 'drinks'), true);
+('Филадельфия', 'Лосось, сливочный сыр, огурец, рис, нори', 499, '250г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Калифорния', 'Краб, авокадо, огурец, икра тобико, рис, нори', 450, '230г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Дракон', 'Угорь, огурец, авокадо, соус унаги, кунжут, рис, нори', 550, '260г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Радуга', 'Лосось, тунец, креветка, авокадо, огурец, рис, нори', 580, '270г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Запеченный с лососем', 'Лосось, сыр, соус спайси, рис, нори, запекается в печи', 520, '240г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Темпура', 'Тигровая креветка, авокадо, огурец, рис, нори, темпурная панировка', 490, '230г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Унаги Маки', 'Угорь, авокадо, огурец, соус унаги, кунжут, рис, нори', 520, '240г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Аляска', 'Лосось, авокадо, огурец, рис, нори', 480, '230г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Бонито', 'Лосось, авокадо, сыр, бонито хлопья, соус унаги, рис, нори', 510, '250г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Хосомаки с огурцом', 'Огурец, рис, нори', 250, '120г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Спайси с тунцом', 'Тунец, спайси соус, огурец, рис, нори', 480, '230г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true),
+('Вегетарианский', 'Авокадо, огурец, болгарский перец, салат, рис, нори', 380, '220г', NULL, (SELECT id FROM categories WHERE slug = 'rolls'), true);
+
+-- Суши
+INSERT INTO products (name, description, price, weight, image_url, category_id, is_available) VALUES
+('Лосось', 'Суши с лососем', 120, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Тунец', 'Суши с тунцом', 130, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Угорь', 'Суши с копченым угрем и соусом унаги', 150, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Креветка', 'Суши с отварной тигровой креветкой', 140, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Гребешок', 'Суши с морским гребешком', 160, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Окунь', 'Суши с морским окунем', 120, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Икра лосося', 'Суши с икрой лосося', 180, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Тобико', 'Суши с летучей рыбой', 150, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Авокадо', 'Суши с авокадо', 90, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true),
+('Тамаго', 'Суши с японским омлетом', 100, '40г', NULL, (SELECT id FROM categories WHERE slug = 'sushi'), true);
+
+-- Сеты
+INSERT INTO products (name, description, price, weight, image_url, category_id, is_available) VALUES
+('Сет "Филадельфия"', 'Филадельфия, Калифорния, Аляска - 24 шт', 1299, '950г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true),
+('Сет "Для двоих"', 'Филадельфия, Калифорния, Дракон, Радуга - 32 шт', 1699, '1200г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true),
+('Сет "Хит"', 'Филадельфия, Калифорния, Бонито, Унаги Маки, Темпура - 40 шт', 2199, '1500г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true),
+('Сет "Запеченный"', 'Три вида запеченных роллов - 24 шт', 1399, '1000г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true),
+('Сет "Вегетарианский"', 'Овощные роллы и суши - 22 шт', 1099, '900г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true),
+('Сет "Премиум"', 'Роллы и суши премиум-класса с лососем, тунцом и угрем - 30 шт', 2499, '1300г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true),
+('Сет "Сяке"', 'Роллы и суши с лососем - 28 шт', 1799, '1100г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true),
+('Сет "Классик"', 'Классические роллы - 32 шт', 1599, '1200г', NULL, (SELECT id FROM categories WHERE slug = 'sets'), true);
+
+-- Напитки
+INSERT INTO products (name, description, price, weight, image_url, category_id, is_available) VALUES
+('Кола', 'Coca-Cola 0.5л', 99, '0.5л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Sprite', 'Sprite 0.5л', 99, '0.5л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Fanta', 'Fanta 0.5л', 99, '0.5л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Вода негазированная', 'Природная вода 0.5л', 69, '0.5л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Вода газированная', 'Газированная вода 0.5л', 69, '0.5л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Зеленый чай', 'Японский зеленый чай', 150, '350мл', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Черный чай', 'Японский черный чай', 150, '350мл', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Cок апельсиновый', 'Натуральный сок 0.25л', 119, '0.25л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Сок яблочный', 'Натуральный сок 0.25л', 119, '0.25л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Сок вишневый', 'Натуральный сок 0.25л', 119, '0.25л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true),
+('Лимонад', 'Домашний лимонад', 189, '0.4л', NULL, (SELECT id FROM categories WHERE slug = 'drinks'), true);
 
 -- Добавление тестовых данных для акций
 INSERT INTO promotions (title, description, image_url, promo_code, discount_percent, is_active) VALUES
