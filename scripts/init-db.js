@@ -9,22 +9,44 @@ const path = require('path');
 
 // Функция для создания соединения с базой данных
 function createPool() {
-  // Использование строки подключения, если доступна, иначе отдельные параметры
-  const connectionConfig = process.env.DATABASE_URL
-    ? { 
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
-      }
-    : {
-        user: process.env.POSTGRES_USER,
-        password: process.env.POSTGRES_PASSWORD,
-        host: process.env.POSTGRES_HOST,
-        port: parseInt(process.env.POSTGRES_PORT || '5432'),
-        database: process.env.POSTGRES_DATABASE || process.env.POSTGRES_DB,
-        ssl: { rejectUnauthorized: false }
-      };
-
-  return new Pool(connectionConfig);
+  // Проверка наличия переменной DATABASE_URL (для Vercel)
+  const databaseUrl = process.env.DATABASE_URL;
+  
+  if (!databaseUrl) {
+    console.log('Переменная DATABASE_URL не найдена. Проверяем другие переменные окружения.');
+    
+    // Проверяем наличие других необходимых переменных
+    const user = process.env.POSTGRES_USER;
+    const password = process.env.POSTGRES_PASSWORD;
+    const host = process.env.POSTGRES_HOST;
+    const port = process.env.POSTGRES_PORT;
+    const database = process.env.POSTGRES_DATABASE || process.env.POSTGRES_DB;
+    
+    if (!user || !password || !host || !database) {
+      throw new Error('Необходимые переменные окружения для подключения к базе данных не найдены. ' +
+        'Пожалуйста, настройте переменную DATABASE_URL или POSTGRES_* переменные.');
+    }
+    
+    console.log(`Подключение к базе данных: ${host}:${port || '5432'}`);
+    
+    // Использование индивидуальных параметров
+    return new Pool({
+      user,
+      password,
+      host,
+      port: parseInt(port || '5432'),
+      database,
+      ssl: process.env.USE_SSL === 'true' ? { rejectUnauthorized: false } : false
+    });
+  }
+  
+  console.log(`Подключение к базе данных по URL: ${databaseUrl.split('@')[1]}`);
+  
+  // Использование строки подключения
+  return new Pool({
+    connectionString: databaseUrl,
+    ssl: process.env.USE_SSL !== 'false' ? { rejectUnauthorized: false } : false
+  });
 }
 
 // Чтение SQL файла
@@ -34,11 +56,12 @@ function readSQL(filename) {
 
 // Основная функция инициализации базы данных
 async function initDatabase() {
-  const pool = createPool();
+  let pool;
   let client;
 
   try {
     console.log('Подключение к базе данных...');
+    pool = createPool();
     client = await pool.connect();
     console.log('Успешное подключение к базе данных');
 
@@ -181,7 +204,9 @@ async function initDatabase() {
     if (client) {
       client.release();
     }
-    await pool.end();
+    if (pool) {
+      await pool.end();
+    }
   }
 }
 
