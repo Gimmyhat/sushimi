@@ -14,8 +14,8 @@ const backgroundImages = [
 
 export default function HeroSection() {
   return (
-    <section className="w-full relative min-h-[500px] md:min-h-[600px] overflow-hidden">
-      <div className="absolute inset-0 h-full w-full" style={{ minHeight: '400px' }}>
+    <section className="w-full relative min-h-[400px] md:min-h-[480px] overflow-hidden">
+      <div className="absolute inset-0 h-full w-full" style={{ minHeight: '320px' }}>
         <ImageSlider 
           images={backgroundImages} 
           interval={5000}
@@ -24,7 +24,7 @@ export default function HeroSection() {
         />
       </div>
       
-      <div className="relative py-12 md:py-16 lg:py-20 w-full text-white z-10">
+      <div className="relative py-8 md:py-12 lg:py-16 w-full text-white z-10">
         {/* Декоративные элементы */}
         <div className="absolute -right-10 top-20 w-[250px] h-[250px] md:w-[350px] md:h-[350px] rounded-full bg-primary/20 blur-[120px]" />
         <div className="absolute -left-10 bottom-20 w-[200px] h-[200px] md:w-[250px] md:h-[250px] rounded-full bg-accent/20 blur-[80px]" />
@@ -33,20 +33,20 @@ export default function HeroSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Текстовый контент */}
             <div className="flex flex-col max-w-xl">
-              <div className="inline-block bg-primary/30 backdrop-blur-sm text-white text-sm font-medium py-1.5 px-4 rounded-full mb-4 md:mb-6 self-start shadow-sm">
+              <div className="inline-block bg-primary/30 backdrop-blur-sm text-white text-sm font-medium py-1.5 px-4 rounded-full mb-3 md:mb-4 self-start shadow-sm">
                 Премиальная доставка суши в Иркутске
               </div>
               
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 md:mb-6 leading-tight text-white drop-shadow-md">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 md:mb-4 leading-tight text-white drop-shadow-md">
                 <span className="text-primary text-glow">Искусство</span> вкуса<br />в каждом роле
               </h1>
               
-              <p className="text-white/90 text-sm md:text-base lg:text-lg mb-6 md:mb-8 drop-shadow-md">
+              <p className="text-white/90 text-sm md:text-base lg:text-lg mb-4 md:mb-6 drop-shadow-md">
                 Истинное наслаждение японской кухней — премиальные ингредиенты, 
                 мастерство шеф-поваров и безукоризненная доставка в течение 60 минут
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-6 md:mb-8">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
                 <Button asChild size="lg" className="text-base bg-primary hover:bg-primary/90 transition-all">
                   <Link href="/menu">
                     Выбрать суши <ChevronRight className="h-4 w-4 ml-1" />

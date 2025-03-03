@@ -98,7 +98,7 @@ export default function CategoryList({ categories, loading }: CategoryListProps)
             {displayCategories.map((category) => (
               <Link 
                 key={category.id} 
-                href={`/menu/${category.slug}`}
+                href={`/menu?category=${category.slug}`}
                 className="block"
               >
                 <Card className="overflow-hidden h-full transition-all hover:shadow-md">

@@ -23,28 +23,21 @@ export default function PromotionsList({ promotions, loading }: PromotionsListPr
     
     // Проверяем содержит ли промокод или заголовок определенные ключевые слова
     if (title.includes('10%') || title.includes('первый') || promoCode.includes('first')) {
-      return 'https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=2070&auto=format&fit=crop';
+      return '/images/categories/category-default.jpg';
     }
     
     if (title.includes('15%') || title.includes('сет') || promoCode.includes('set')) {
-      return 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=2070&auto=format&fit=crop';
+      return '/images/categories/category-sets.jpg';
     }
     
     // Альтернативные изображения для других промо
-    const promoImages = [
-      'https://images.unsplash.com/photo-1583623025817-d180a2221d0a?q=80&w=2070&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=2070&auto=format&fit=crop'
-    ];
-    
-    // Выбираем изображение по ID акции
-    const index = promo.id ? parseInt(promo.id.charAt(0), 16) % promoImages.length : 0;
-    return promoImages[index];
+    return '/images/categories/category-rolls.jpg';
   };
   
   // Моковые данные для отображения, если API вернул пустой массив
   const mockPromotions: Promotion[] = [
     {
-      id: "1",
+      id: "02c9808c-180e-4b7a-b17b-c08faa28ce6b",
       title: "Скидка 10% на первый заказ",
       description: "Скидка 10% для новых клиентов",
       promo_code: "FIRST10",
@@ -52,7 +45,7 @@ export default function PromotionsList({ promotions, loading }: PromotionsListPr
       created_at: new Date().toISOString()
     },
     {
-      id: "2",
+      id: "28cf6a47-bd86-4548-ab58-70ae86f75d8f",
       title: "Скидка 15% на сеты",
       description: "Скидка на все сеты до конца недели",
       promo_code: "SETS15",
@@ -91,9 +84,9 @@ export default function PromotionsList({ promotions, loading }: PromotionsListPr
               <Link 
                 key={promo.id} 
                 href={`/promotions/${promo.id}`}
-                className="block"
+                className="block h-full"
               >
-                <Card className="overflow-hidden h-full transition-all hover:shadow-md">
+                <Card className="overflow-hidden h-full transition-all hover:shadow-md flex flex-col">
                   <div className="relative h-40 md:h-48 w-full bg-gray-700">
                     <Image
                       src={getPromoImage(promo)}
@@ -105,18 +98,24 @@ export default function PromotionsList({ promotions, loading }: PromotionsListPr
                       onError={(e) => {
                         console.warn(`Ошибка загрузки изображения для акции ${promo.title}`);
                         // Используем запасное изображение при ошибке
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=2070&auto=format&fit=crop';
+                        e.currentTarget.src = '/images/categories/category-default.jpg';
                       }}
                     />
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold mb-2">{promo.title}</h3>
-                    <p className="text-sm text-gray-500 mb-2">{promo.description}</p>
-                    {promo.promo_code && (
-                      <p className="text-sm font-medium">
-                        Промокод: <span className="font-bold">{promo.promo_code}</span>
-                      </p>
-                    )}
+                  <CardContent className="p-4 flex flex-col flex-grow">
+                    <div className="flex-grow">
+                      <h3 className="text-lg font-semibold mb-2">{promo.title}</h3>
+                      <p className="text-sm text-gray-500 mb-2">{promo.description}</p>
+                      {promo.promo_code && (
+                        <p className="text-sm font-medium">
+                          Промокод: <span className="font-bold">{promo.promo_code}</span>
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex justify-end items-center text-primary mt-4">
+                      <span className="text-sm font-medium mr-1">Подробнее</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </div>
                   </CardContent>
                 </Card>
               </Link>

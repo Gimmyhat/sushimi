@@ -42,7 +42,7 @@ export default function PromotionsPage() {
             link: '/menu'
           }
         ].map((promo, index) => (
-          <Card key={index} className="overflow-hidden">
+          <Card key={index} className="overflow-hidden flex flex-col h-full">
             <div className="relative h-64">
               <Image 
                 src={promo.image}
@@ -54,20 +54,22 @@ export default function PromotionsPage() {
                 <Badge className="bg-primary text-primary-foreground">Акция</Badge>
               </div>
             </div>
-            <CardContent className="p-6">
-              <div className="flex items-center text-muted-foreground mb-2">
-                <CalendarDays className="h-4 w-4 mr-2" />
-                <span className="text-sm">{promo.date}</span>
-              </div>
-              <h2 className="text-2xl font-semibold mb-2">{promo.title}</h2>
-              <p className="text-muted-foreground mb-4">{promo.description}</p>
-              {promo.promo && (
-                <div className="bg-muted p-3 rounded-md text-center mb-4">
-                  <p className="text-sm text-muted-foreground mb-1">Промокод:</p>
-                  <p className="font-bold text-lg">{promo.promo}</p>
+            <CardContent className="p-6 flex flex-col flex-grow">
+              <div className="flex-grow">
+                <div className="flex items-center text-muted-foreground mb-2">
+                  <CalendarDays className="h-4 w-4 mr-2" />
+                  <span className="text-sm">{promo.date}</span>
                 </div>
-              )}
-              <Button asChild className="w-full">
+                <h2 className="text-2xl font-semibold mb-2">{promo.title}</h2>
+                <p className="text-muted-foreground mb-4">{promo.description}</p>
+                {promo.promo && (
+                  <div className="bg-muted p-3 rounded-md text-center mb-4">
+                    <p className="text-sm text-muted-foreground mb-1">Промокод:</p>
+                    <p className="font-bold text-lg">{promo.promo}</p>
+                  </div>
+                )}
+              </div>
+              <Button asChild className="w-full mt-4">
                 <Link href={promo.link}>Воспользоваться</Link>
               </Button>
             </CardContent>
@@ -116,33 +118,39 @@ export default function PromotionsPage() {
       
       <h2 className="text-2xl font-semibold mb-6">Специальные предложения</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-2">День рождения</h3>
-            <p className="text-muted-foreground mb-4">
-              В день вашего рождения и 3 дня до и после получите скидку 15% на весь заказ. Просто предъявите документ, подтверждающий дату рождения.
-            </p>
-            <Button variant="outline" className="w-full">Подробнее</Button>
+        <Card className="flex flex-col h-full">
+          <CardContent className="p-6 flex flex-col h-full">
+            <div className="flex-grow">
+              <h3 className="font-semibold text-lg mb-2">День рождения</h3>
+              <p className="text-muted-foreground mb-4">
+                В день вашего рождения и 3 дня до и после получите скидку 15% на весь заказ. Просто предъявите документ, подтверждающий дату рождения.
+              </p>
+            </div>
+            <Button variant="outline" className="w-full mt-4">Подробнее</Button>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-2">Корпоративные заказы</h3>
-            <p className="text-muted-foreground mb-4">
-              Специальные условия для корпоративных клиентов. Индивидуальный подход, скидки и бонусы при регулярных заказах.
-            </p>
-            <Button variant="outline" className="w-full">Подробнее</Button>
+        <Card className="flex flex-col h-full">
+          <CardContent className="p-6 flex flex-col h-full">
+            <div className="flex-grow">
+              <h3 className="font-semibold text-lg mb-2">Корпоративные заказы</h3>
+              <p className="text-muted-foreground mb-4">
+                Специальные условия для корпоративных клиентов. Индивидуальный подход, скидки и бонусы при регулярных заказах.
+              </p>
+            </div>
+            <Button variant="outline" className="w-full mt-4">Подробнее</Button>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-2">Подписка на новости</h3>
-            <p className="text-muted-foreground mb-4">
-              Подпишитесь на нашу рассылку и получайте информацию о новых акциях и специальных предложениях первыми.
-            </p>
-            <Button variant="outline" className="w-full">Подписаться</Button>
+        <Card className="flex flex-col h-full">
+          <CardContent className="p-6 flex flex-col h-full">
+            <div className="flex-grow">
+              <h3 className="font-semibold text-lg mb-2">Подписка на новости</h3>
+              <p className="text-muted-foreground mb-4">
+                Подпишитесь на нашу рассылку и получайте информацию о новых акциях и специальных предложениях первыми.
+              </p>
+            </div>
+            <Button variant="outline" className="w-full mt-4">Подписаться</Button>
           </CardContent>
         </Card>
       </div>

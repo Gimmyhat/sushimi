@@ -1,10 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getProductsByCategory } from '@/lib/db';
 
-export async function GET(request: Request) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const slug = searchParams.get('slug');
+    const { slug } = params;
+    
+    console.log(`API: Получаем продукты для категории ${slug}`);
     
     if (!slug) {
       console.log('Запрос без slug параметра');
@@ -14,7 +18,6 @@ export async function GET(request: Request) {
       );
     }
     
-    console.log(`API: Получаем продукты для категории ${slug}`);
     const products = await getProductsByCategory(slug);
     console.log(`API: Найдено ${products.length} продуктов для категории ${slug}`);
     

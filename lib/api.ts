@@ -28,12 +28,28 @@ export async function getCategories(): Promise<Category[]> {
 // Функция для получения продуктов по категории
 export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
   try {
+    console.log(`API: Запрашиваем продукты для категории ${categorySlug}`);
     const response = await fetch(`/api/products/category?slug=${categorySlug}`);
+    
     if (!response.ok) {
+      console.error(`Ошибка запроса: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Ответ сервера:', errorText);
       throw new Error(`Ошибка при получении продуктов для категории ${categorySlug}`);
     }
-    const data: ProductsResponse = await response.json();
-    return data.data || [];
+    
+    const data = await response.json();
+    console.log(`API: Ответ для категории ${categorySlug}:`, data);
+    
+    // Проверяем структуру ответа
+    if (data && data.success === true && Array.isArray(data.data)) {
+      return data.data;
+    } else if (data && Array.isArray(data)) {
+      return data;
+    } else {
+      console.warn(`Неожиданный формат данных для категории ${categorySlug}:`, data);
+      return [];
+    }
   } catch (error) {
     console.error(`Error fetching products for category ${categorySlug}:`, error);
     return [];

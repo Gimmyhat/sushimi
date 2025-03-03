@@ -10,52 +10,312 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useCart } from '@/components/cart-provider'
 import { getCategories, getProductsByCategory } from '@/lib/api'
 
+// Определяем интерфейсы
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  image_url: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  weight: string;
+  is_available: boolean;
+  category_id: string;
+  category_slug: string;
+  image_url?: string;
+}
+
+// Добавляем тестовые данные напрямую в компонент страницы
+// Данные категорий
+const testCategories = [
+  {
+    id: 'cat1',
+    name: 'Роллы',
+    slug: 'rolls',
+    description: 'Классические и фирменные роллы',
+    image_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=1000&auto=format&fit=crop'
+  },
+  {
+    id: 'cat2',
+    name: 'Суши',
+    slug: 'sushi',
+    description: 'Традиционные японские суши',
+    image_url: 'https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=1000&auto=format&fit=crop'
+  },
+  {
+    id: 'cat3',
+    name: 'Сеты',
+    slug: 'sets',
+    description: 'Наборы из нескольких видов роллов и суши',
+    image_url: 'https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=1000&auto=format&fit=crop'
+  },
+  {
+    id: 'cat4',
+    name: 'Напитки',
+    slug: 'drinks',
+    description: 'Напитки к вашему заказу',
+    image_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1000&auto=format&fit=crop'
+  }
+];
+
+// Данные продуктов по категориям
+const testProducts = {
+  rolls: [
+    {
+      id: 'r001',
+      name: 'Филадельфия классик',
+      description: 'Классический ролл с лососем, сливочным сыром, огурцом и авокадо',
+      price: 590,
+      weight: '280 г',
+      is_available: true,
+      category_id: 'cat1',
+      category_slug: 'rolls'
+    },
+    {
+      id: 'r002',
+      name: 'Калифорния',
+      description: 'Ролл с крабовым мясом, авокадо, огурцом и икрой тобико',
+      price: 490,
+      weight: '260 г',
+      is_available: true,
+      category_id: 'cat1',
+      category_slug: 'rolls'
+    },
+    {
+      id: 'r003',
+      name: 'Дракон',
+      description: 'Ролл с угрем, огурцом, сливочным сыром, авокадо и соусом унаги',
+      price: 640,
+      weight: '290 г',
+      is_available: true,
+      category_id: 'cat1',
+      category_slug: 'rolls'
+    },
+    {
+      id: 'r004',
+      name: 'Спайси лосось',
+      description: 'Острый ролл с лососем, огурцом и спайси соусом',
+      price: 450,
+      weight: '240 г',
+      is_available: true,
+      category_id: 'cat1',
+      category_slug: 'rolls'
+    },
+    {
+      id: 'r005',
+      name: 'Радуга',
+      description: 'Ролл с разными видами рыбы (лосось, тунец, угорь), авокадо и огурцом',
+      price: 670,
+      weight: '300 г',
+      is_available: true,
+      category_id: 'cat1',
+      category_slug: 'rolls'
+    },
+    {
+      id: 'r006',
+      name: 'Темпура с креветкой',
+      description: 'Жареный ролл с креветкой, сливочным сыром, авокадо и соусом унаги',
+      price: 580,
+      weight: '270 г',
+      is_available: true,
+      category_id: 'cat1',
+      category_slug: 'rolls'
+    }
+  ],
+  sushi: [
+    {
+      id: 's001',
+      name: 'Нигири с лососем',
+      description: 'Классические суши с рисом и свежим лососем',
+      price: 190,
+      weight: '35 г',
+      is_available: true,
+      category_id: 'cat2',
+      category_slug: 'sushi'
+    },
+    {
+      id: 's002',
+      name: 'Нигири с тунцом',
+      description: 'Классические суши с рисом и свежим тунцом',
+      price: 210,
+      weight: '35 г',
+      is_available: true,
+      category_id: 'cat2',
+      category_slug: 'sushi'
+    },
+    {
+      id: 's003',
+      name: 'Нигири с угрем',
+      description: 'Классические суши с рисом и копченым угрем под соусом унаги',
+      price: 230,
+      weight: '40 г',
+      is_available: true,
+      category_id: 'cat2',
+      category_slug: 'sushi'
+    },
+    {
+      id: 's004',
+      name: 'Нигири с креветкой',
+      description: 'Классические суши с рисом и отварной креветкой',
+      price: 200,
+      weight: '35 г',
+      is_available: true,
+      category_id: 'cat2',
+      category_slug: 'sushi'
+    },
+    {
+      id: 's005',
+      name: 'Гункан с икрой лосося',
+      description: 'Суши-корзинка с рисом и красной икрой',
+      price: 290,
+      weight: '40 г',
+      is_available: true,
+      category_id: 'cat2',
+      category_slug: 'sushi'
+    }
+  ],
+  sets: [
+    {
+      id: 'st001',
+      name: 'Сет Филадельфия',
+      description: 'Большой сет из 4 видов роллов с лососем: Филадельфия классик, Филадельфия с огурцом, Филадельфия с авокадо, Филадельфия спайси',
+      price: 1590,
+      weight: '1050 г',
+      is_available: true,
+      category_id: 'cat3',
+      category_slug: 'sets'
+    },
+    {
+      id: 'st002',
+      name: 'Сет Калифорния',
+      description: 'Набор из классической Калифорнии и её вариаций с разными начинками',
+      price: 1490,
+      weight: '980 г',
+      is_available: true,
+      category_id: 'cat3',
+      category_slug: 'sets'
+    },
+    {
+      id: 'st003',
+      name: 'Сет Ассорти',
+      description: 'Большой сет из самых популярных роллов: Филадельфия, Калифорния, Дракон и Радуга',
+      price: 1890,
+      weight: '1120 г',
+      is_available: true,
+      category_id: 'cat3',
+      category_slug: 'sets'
+    },
+    {
+      id: 'st004',
+      name: 'Сет Hot',
+      description: 'Набор из горячих жареных роллов с различными начинками',
+      price: 1690,
+      weight: '1050 г',
+      is_available: true,
+      category_id: 'cat3',
+      category_slug: 'sets'
+    }
+  ],
+  drinks: [
+    {
+      id: 'd001',
+      name: 'Чай зеленый',
+      description: 'Традиционный японский зеленый чай',
+      price: 190,
+      weight: '400 мл',
+      is_available: true,
+      category_id: 'cat4',
+      category_slug: 'drinks'
+    },
+    {
+      id: 'd002',
+      name: 'Кока-кола',
+      description: 'Кока-кола классическая',
+      price: 150,
+      weight: '500 мл',
+      is_available: true,
+      category_id: 'cat4',
+      category_slug: 'drinks'
+    },
+    {
+      id: 'd003',
+      name: 'Спрайт',
+      description: 'Газированный напиток Спрайт',
+      price: 150,
+      weight: '500 мл',
+      is_available: true,
+      category_id: 'cat4',
+      category_slug: 'drinks'
+    },
+    {
+      id: 'd004',
+      name: 'Сок апельсиновый',
+      description: 'Натуральный апельсиновый сок',
+      price: 190,
+      weight: '500 мл',
+      is_available: true,
+      category_id: 'cat4',
+      category_slug: 'drinks'
+    },
+    {
+      id: 'd005',
+      name: 'Сок яблочный',
+      description: 'Натуральный яблочный сок',
+      price: 190,
+      weight: '500 мл',
+      is_available: true,
+      category_id: 'cat4',
+      category_slug: 'drinks'
+    }
+  ]
+};
+
 // Функция для получения изображения продукта в зависимости от категории
 const getProductImage = (categorySlug: string, productId: string) => {
-  // Используем последние символы ID продукта для получения разных изображений для разных продуктов
-  const idLastChars = productId.slice(-3);
-  const hashCode = parseInt(idLastChars, 16) % 5; // Используем для выбора одной из 5 заглушек
+  // Соответствие между id продукта и путем к изображению
+  const productIdToImage: Record<string, string> = {
+    // Роллы
+    'r002': '/images/products/rolls/california.jpg', // Калифорния
+    'r003': '/images/products/rolls/dragon.jpg',     // Дракон
+    'r004': '/images/products/rolls/spicy-salmon.jpg', // Спайси лосось
+    
+    // Суши
+    's001': '/images/products/sushi/nigiri-salmon.jpg', // Нигири с лососем
+    's004': '/images/products/sushi/nigiri-shrimp.jpg', // Нигири с креветкой
+    
+    // Сеты
+    'st002': '/images/products/sets/california-set.jpg', // Сет Калифорния
+    'st003': '/images/products/sets/assorted-set.jpg',   // Сет Ассорти
+    
+    // Напитки
+    'd001': '/images/products/drinks/green-tea.jpg',    // Чай зеленый
+    'd002': '/images/products/drinks/cola.jpg',         // Кока-кола
+    'd003': '/images/products/drinks/sprite.jpg',       // Спрайт
+  };
+
+  // Проверяем соответствие по ID продукта
+  if (productIdToImage[productId]) {
+    return productIdToImage[productId];
+  }
   
-  // Базовые изображения для каждой категории
+  // Для продуктов без конкретных изображений используем категорию
   switch (categorySlug) {
     case 'rolls':
-      const rollsImages = [
-        "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1615361200141-f45961bc8a64?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1635012952399-50b65f28e3c7?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1559410545-0bdcd187e323?q=80&w=1000&auto=format&fit=crop"
-      ];
-      return rollsImages[hashCode];
+      return `/images/categories/category-rolls.jpg`;
     case 'sushi':
-      const sushiImages = [
-        "https://images.unsplash.com/photo-1563612116625-3012372fccce?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1556906903-0a5dc8b0ff5d?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1534256958597-7fe685cbd745?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1583623025817-d180a2fe075e?q=80&w=1000&auto=format&fit=crop"
-      ];
-      return sushiImages[hashCode];
+      return `/images/categories/category-sushi.jpg`;
     case 'sets':
-      const setsImages = [
-        "https://images.unsplash.com/photo-1617196034183-421b4917c92d?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1617196333412-f53a995a6e16?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1628707351135-e336e6426053?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1562802378-063ec186a863?q=80&w=1000&auto=format&fit=crop"
-      ];
-      return setsImages[hashCode];
+      return `/images/categories/category-sets.jpg`;
     case 'drinks':
-      const drinksImages = [
-        "https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1613478223719-2ab802602423?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1498480086004-2400bd8c3663?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1571950006418-f226dc106482?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1565454296317-b45fe0ff1447?q=80&w=1000&auto=format&fit=crop"
-      ];
-      return drinksImages[hashCode];
+      return `/images/categories/category-drinks.jpg`;
     default:
-      return "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1000&auto=format&fit=crop";
+      return `/images/categories/category-default.jpg`;
   }
 };
 
@@ -63,69 +323,81 @@ export default function MenuPage() {
   const searchParams = useSearchParams()
   const categoryParam = searchParams.get('category')
   
-  const [categories, setCategories] = useState<any[]>([])
-  const [products, setProducts] = useState<Record<string, any[]>>({})
-  const [activeTab, setActiveTab] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [products, setProducts] = useState<{[key: string]: Product[]}>({})
+  const [activeTab, setActiveTab] = useState<string>('')
   const [loading, setLoading] = useState(true)
-  
   const { addItem } = useCart()
-  
+
   useEffect(() => {
     async function fetchData() {
       try {
-        // Получаем категории
-        const categoriesData = await getCategories()
-        setCategories(categoriesData)
-        
-        if (categoriesData.length > 0) {
+        setLoading(true)
+        console.log('Fetching data for menu...')
+
+        // Используем тестовые данные вместо API
+        const fetchedCategories = testCategories;
+        console.log('Fetched categories:', fetchedCategories)
+
+        if (fetchedCategories && fetchedCategories.length > 0) {
+          setCategories(fetchedCategories)
+          
           // Определяем активную вкладку
-          let initialTab = categoriesData[0].slug
+          let initialTab = fetchedCategories[0].slug;
           
           // Если есть параметр категории в URL, используем его
           if (categoryParam) {
-            const matchingCategory = categoriesData.find(
-              (cat: any) => cat.slug === categoryParam || cat.slug === categoryParam.toLowerCase()
-            )
+            const matchingCategory = fetchedCategories.find(
+              (cat) => cat.slug === categoryParam || cat.slug === categoryParam.toLowerCase()
+            );
             if (matchingCategory) {
-              initialTab = matchingCategory.slug
+              initialTab = matchingCategory.slug;
             }
           }
           
           setActiveTab(initialTab)
+          console.log('Active tab set to:', initialTab)
           
           // Загружаем продукты для всех категорий
-          const productsData: Record<string, any[]> = {}
+          const productsByCategory: {[key: string]: Product[]} = {}
           
-          for (const category of categoriesData) {
-            const categoryProducts = await getProductsByCategory(category.slug)
-            productsData[category.slug] = categoryProducts
+          for (const category of fetchedCategories) {
+            // Используем тестовые продукты для каждой категории
+            const categoryProducts = testProducts[category.slug as keyof typeof testProducts] || [];
+            console.log(`Fetched products for ${category.slug}:`, categoryProducts)
+            
+            productsByCategory[category.slug] = categoryProducts
           }
           
-          setProducts(productsData)
+          setProducts(productsByCategory)
         }
       } catch (error) {
-        console.error('Error fetching menu data:', error)
+        console.error('Error fetching data for menu:', error)
       } finally {
         setLoading(false)
       }
     }
-    
+
     fetchData()
-  }, [categoryParam])
+  }, [categoryParam]) // Добавляем categoryParam в массив зависимостей
+
+  const handleTabChange = (slug: string) => {
+    setActiveTab(slug)
+  }
   
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     addItem({
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image_url || getProductImage(product.category_slug || activeTab, product.id)
+      image: product.image_url || getProductImage(product.category_slug, product.id)
     })
   }
   
   if (loading) {
     return (
       <div className="container py-12 md:py-16">
-        <h1 className="text-4xl font-bold mb-10">Меню</h1>
+        <h1 className="text-4xl font-bold mb-10">Меню - Загрузка...</h1>
         <div className="bg-white p-6 rounded-lg shadow-sm mb-10">
           <div className="flex gap-3 mb-8">
             {[1, 2, 3, 4, 5].map(i => (
@@ -152,82 +424,95 @@ export default function MenuPage() {
     )
   }
   
-  return (
-    <main className="bg-slate-50 pb-16">
-      <div className="pt-10 pb-6 bg-white shadow-sm">
-        <div className="container">
-          <h1 className="text-4xl font-bold">Меню</h1>
+  const hasProducts = Object.values(products).some(arr => arr.length > 0);
+  
+  if (!hasProducts) {
+    return (
+      <div className="container py-12 md:py-16">
+        <h1 className="text-4xl font-bold mb-6">Меню</h1>
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+          <div className="flex flex-wrap gap-3 mb-4 items-center">
+            {categories.map((category) => (
+              <TabsTrigger
+                key={category.slug}
+                value={category.slug}
+                onClick={() => setActiveTab(category.slug)}
+                className={`px-4 py-2 rounded ${activeTab === category.slug ? 'bg-red-500 text-white' : 'bg-gray-100'}`}
+              >
+                {category.name}
+              </TabsTrigger>
+            ))}
+          </div>
         </div>
       </div>
+    )
+  }
+  
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Меню</h1>
       
-      <div className="container py-12">
-        {categories.length > 0 ? (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-10">
-              <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent">
-                {categories.map((category) => (
-                  <TabsTrigger 
-                    key={category.id} 
-                    value={category.slug} 
-                    className="text-base px-5 py-2.5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-sm"
+      {loading ? (
+        <div className="text-center py-10">
+          <p className="text-xl">Меню - Загрузка...</p>
+        </div>
+      ) : (
+        <>
+          {/* Вкладки категорий */}
+          <div className="border-b mb-6">
+            <ul className="flex flex-wrap -mb-px">
+              {categories.map((category) => (
+                <li key={category.id} className="mr-2">
+                  <button
+                    onClick={() => handleTabChange(category.slug)}
+                    className={`inline-block p-4 rounded-t-lg ${
+                      activeTab === category.slug
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'hover:text-gray-600 hover:border-gray-300'
+                    }`}
                   >
                     {category.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-            
-            {categories.map((category) => (
-              <TabsContent key={category.id} value={category.slug} className="mt-0">
-                {products[category.slug] && products[category.slug].length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {products[category.slug].map((product) => (
-                      <Card key={product.id} className="overflow-hidden bg-white border-none shadow-sm hover:shadow-md transition-all">
-                        <div className="relative h-56">
-                          <Image 
-                            src={product.image_url || getProductImage(category.slug, product.id)}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            quality={85}
-                          />
-                          {product.weight && (
-                            <div className="absolute top-4 right-4 bg-white text-gray-700 text-xs font-medium py-1 px-2.5 rounded-full shadow-sm">
-                              {product.weight}
-                            </div>
-                          )}
-                        </div>
-                        <CardContent className="p-5">
-                          <h3 className="font-semibold text-xl mb-3">{product.name}</h3>
-                          <p className="text-muted-foreground text-sm mb-5 line-clamp-2">{product.description}</p>
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium text-xl">{product.price} ₽</span>
-                            <Button 
-                              onClick={() => handleAddToCart(product)} 
-                              className="bg-primary hover:bg-primary/90 shadow-sm"
-                            >
-                              В корзину
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-                    <p className="text-muted-foreground text-lg">В данной категории пока нет товаров</p>
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
-        ) : (
-          <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-            <p className="text-muted-foreground text-lg">Меню загружается или недоступно</p>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
-      </div>
-    </main>
+
+          {/* Список продуктов */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products[activeTab]?.map((product, index) => (
+              <div key={product.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="h-48 bg-gray-200 relative">
+                  <Image
+                    src={product.image_url || getProductImage(product.category_slug, product.id)}
+                    alt={product.name}
+                    fill
+                    priority={index < 3}
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
+                  <p className="text-gray-600 text-sm mb-2">{product.description}</p>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-lg font-bold">{product.price} ₽</p>
+                      <p className="text-gray-500 text-sm">{product.weight}</p>
+                    </div>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                    >
+                      В корзину
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   )
 }
