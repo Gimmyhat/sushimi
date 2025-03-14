@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "db:init": "node scripts/init-db.js",
-    "vercel-build": "next build"
+    "vercel-build": "next build",
+    "local:start": "node scripts/local/start.js",
+    "local:stop": "node scripts/local/stop.js",
+    "local:db:init": "node scripts/manual-db-init.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
