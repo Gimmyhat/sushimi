@@ -8,28 +8,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCart } from '@/components/cart-provider'
-import { getCategories, getProductsByCategory } from '@/lib/api'
-
-// Определяем интерфейсы
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  image_url: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  weight: string;
-  is_available: boolean;
-  category_id: string;
-  category_slug: string;
-  image_url?: string;
-}
+import { useCategories, useProductsByCategory } from '@/hooks/api'
+import { Category, Product } from '@/types'
 
 // Добавляем тестовые данные напрямую в компонент страницы
 // Данные категорий
@@ -276,8 +256,10 @@ const testProducts = {
   ]
 };
 
-// Функция для получения изображения продукта в зависимости от категории
-const getProductImage = (categorySlug: string, productId: string) => {
+// Функция для получения изображения продукта
+const getProductImage = (categorySlug: string | undefined, productId: string): string => {
+  if (!categorySlug) return '/images/placeholder.jpg';
+  
   // Соответствие между id продукта и путем к изображению
   const productIdToImage: Record<string, string> = {
     // Роллы
@@ -321,68 +303,32 @@ const getProductImage = (categorySlug: string, productId: string) => {
 
 export default function MenuPage() {
   const searchParams = useSearchParams()
-  const categoryParam = searchParams.get('category')
+  const initialCategory = searchParams.get('category') || ''
   
-  const [categories, setCategories] = useState<Category[]>([])
-  const [products, setProducts] = useState<{[key: string]: Product[]}>({})
-  const [activeTab, setActiveTab] = useState<string>('')
-  const [loading, setLoading] = useState(true)
+  const [activeCategory, setActiveCategory] = useState<string>(initialCategory)
   const { addItem } = useCart()
-
+  
+  // Получаем категории с использованием React Query
+  const { 
+    data: categories = [], 
+    isLoading: categoriesLoading 
+  } = useCategories()
+  
+  // Получаем продукты для активной категории
+  const { 
+    data: products = [], 
+    isLoading: productsLoading 
+  } = useProductsByCategory(activeCategory || '')
+  
+  // Если нет активной категории и есть категории, устанавливаем первую категорию как активную
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true)
-        console.log('Fetching data for menu...')
-
-        // Используем тестовые данные вместо API
-        const fetchedCategories = testCategories;
-        console.log('Fetched categories:', fetchedCategories)
-
-        if (fetchedCategories && fetchedCategories.length > 0) {
-          setCategories(fetchedCategories)
-          
-          // Определяем активную вкладку
-          let initialTab = fetchedCategories[0].slug;
-          
-          // Если есть параметр категории в URL, используем его
-          if (categoryParam) {
-            const matchingCategory = fetchedCategories.find(
-              (cat) => cat.slug === categoryParam || cat.slug === categoryParam.toLowerCase()
-            );
-            if (matchingCategory) {
-              initialTab = matchingCategory.slug;
-            }
-          }
-          
-          setActiveTab(initialTab)
-          console.log('Active tab set to:', initialTab)
-          
-          // Загружаем продукты для всех категорий
-          const productsByCategory: {[key: string]: Product[]} = {}
-          
-          for (const category of fetchedCategories) {
-            // Используем тестовые продукты для каждой категории
-            const categoryProducts = testProducts[category.slug as keyof typeof testProducts] || [];
-            console.log(`Fetched products for ${category.slug}:`, categoryProducts)
-            
-            productsByCategory[category.slug] = categoryProducts
-          }
-          
-          setProducts(productsByCategory)
-        }
-      } catch (error) {
-        console.error('Error fetching data for menu:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (!activeCategory && categories.length > 0 && !categoriesLoading) {
+      setActiveCategory(categories[0].slug);
     }
-
-    fetchData()
-  }, [categoryParam]) // Добавляем categoryParam в массив зависимостей
-
+  }, [categories, categoriesLoading, activeCategory]);
+  
   const handleTabChange = (slug: string) => {
-    setActiveTab(slug)
+    setActiveCategory(slug)
   }
   
   const handleAddToCart = (product: Product) => {
@@ -394,7 +340,7 @@ export default function MenuPage() {
     })
   }
   
-  if (loading) {
+  if (productsLoading) {
     return (
       <div className="container py-12 md:py-16">
         <h1 className="text-4xl font-bold mb-10">Меню - Загрузка...</h1>
@@ -424,7 +370,7 @@ export default function MenuPage() {
     )
   }
   
-  const hasProducts = Object.values(products).some(arr => arr.length > 0);
+  const hasProducts = products.length > 0;
   
   if (!hasProducts) {
     return (
@@ -436,8 +382,8 @@ export default function MenuPage() {
               <TabsTrigger
                 key={category.slug}
                 value={category.slug}
-                onClick={() => setActiveTab(category.slug)}
-                className={`px-4 py-2 rounded ${activeTab === category.slug ? 'bg-red-500 text-white' : 'bg-gray-100'}`}
+                onClick={() => setActiveCategory(category.slug)}
+                className={`px-4 py-2 rounded ${activeCategory === category.slug ? 'bg-red-500 text-white' : 'bg-gray-100'}`}
               >
                 {category.name}
               </TabsTrigger>
@@ -452,7 +398,7 @@ export default function MenuPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Меню</h1>
       
-      {loading ? (
+      {productsLoading ? (
         <div className="text-center py-10">
           <p className="text-xl">Меню - Загрузка...</p>
         </div>
@@ -466,7 +412,7 @@ export default function MenuPage() {
                   <button
                     onClick={() => handleTabChange(category.slug)}
                     className={`inline-block p-4 rounded-t-lg ${
-                      activeTab === category.slug
+                      activeCategory === category.slug
                         ? 'text-blue-600 border-b-2 border-blue-600'
                         : 'hover:text-gray-600 hover:border-gray-300'
                     }`}
@@ -480,7 +426,7 @@ export default function MenuPage() {
 
           {/* Список продуктов */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products[activeTab]?.map((product, index) => (
+            {products.map((product, index) => (
               <div key={product.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <div className="h-48 bg-gray-200 relative">
                   <Image

@@ -8,6 +8,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { CartProvider } from '@/components/cart-provider';
+import { QueryProvider } from '@/components/query-provider';
 import MainLayout from '@/components/layouts/MainLayout';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
@@ -30,9 +31,11 @@ export default function RootLayout({
     <html lang="ru" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <CartProvider>
-            <MainLayout>{children}</MainLayout>
-          </CartProvider>
+          <QueryProvider>
+            <CartProvider>
+              <MainLayout>{children}</MainLayout>
+            </CartProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

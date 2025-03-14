@@ -12,14 +12,14 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { useCart } from '@/components/cart-provider'
-import { createOrder, OrderData } from '@/lib/api'
+import { useCreateOrder } from '@/hooks/api'
+import { OrderData } from '@/lib/api'
 import { OrderStatus, PaymentMethod } from '@/types/order'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { toast } = useToast()
   const { items, subtotal, clearCart } = useCart()
-  const [isSubmitting, setIsSubmitting] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -31,6 +31,9 @@ export default function CheckoutPage() {
     scheduledTime: '',
     comment: '',
   })
+  
+  // Используем React Query для создания заказа
+  const createOrderMutation = useCreateOrder()
   
   // Расчет стоимости доставки и общей суммы
   const deliveryCost = subtotal >= 2000 ? 0 : 300
@@ -57,8 +60,6 @@ export default function CheckoutPage() {
       return
     }
     
-    setIsSubmitting(true)
-    
     try {
       // Создание заказа
       const orderData: OrderData = {
@@ -78,8 +79,8 @@ export default function CheckoutPage() {
         price: item.price
       }))
       
-      // Отправляем заказ и его элементы через API
-      await createOrder(orderData, orderItems)
+      // Отправляем заказ и его элементы через React Query
+      await createOrderMutation.mutateAsync({ orderData, orderItems })
       
       // Очистка корзины и перенаправление
       clearCart()
@@ -99,8 +100,6 @@ export default function CheckoutPage() {
         description: "Пожалуйста, попробуйте еще раз или свяжитесь с нами по телефону",
         variant: "destructive"
       })
-    } finally {
-      setIsSubmitting(false)
     }
   }
   
@@ -254,12 +253,14 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
             
-            <div className="mt-6 flex justify-between">
-              <Button variant="outline" asChild>
-                <Link href="/cart">Вернуться в корзину</Link>
-              </Button>
-              <Button type="submit" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? 'Оформление...' : 'Подтвердить заказ'}
+            <div className="mt-6">
+              <Button 
+                type="submit" 
+                size="lg" 
+                className="w-full"
+                disabled={createOrderMutation.isPending}
+              >
+                {createOrderMutation.isPending ? 'Оформление заказа...' : 'Оформить заказ'}
               </Button>
             </div>
           </form>

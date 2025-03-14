@@ -10,27 +10,28 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 import { useCart } from '@/components/cart-provider'
-import { checkPromoCode } from '@/lib/api'
+import { usePromoCode } from '@/hooks/api'
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal, clearCart } = useCart()
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
   const [discount, setDiscount] = useState(0)
-  const [isCheckingPromo, setIsCheckingPromo] = useState(false)
   const [promoError, setPromoError] = useState('')
   
   const deliveryCost = subtotal >= 2000 ? 0 : 300
   const total = subtotal - discount + deliveryCost
   
+  // Используем React Query для проверки промокода
+  const promoCodeMutation = usePromoCode()
+  
   const applyPromoCode = async () => {
     if (!promoCode) return
     
-    setIsCheckingPromo(true)
     setPromoError('')
     
     try {
-      const promo = await checkPromoCode(promoCode)
+      const promo = await promoCodeMutation.mutateAsync(promoCode)
       
       if (promo) {
         setPromoApplied(true)
@@ -42,8 +43,6 @@ export default function CartPage() {
     } catch (error) {
       console.error('Error applying promo code:', error)
       setPromoError('Ошибка при проверке промокода')
-    } finally {
-      setIsCheckingPromo(false)
     }
   }
   
@@ -164,14 +163,14 @@ export default function CartPage() {
                     value={promoCode} 
                     onChange={(e) => setPromoCode(e.target.value)}
                     placeholder="Введите промокод"
-                    disabled={promoApplied || isCheckingPromo}
+                    disabled={promoApplied || promoCodeMutation.isPending}
                   />
                   <Button 
                     variant="outline" 
                     onClick={applyPromoCode}
-                    disabled={promoApplied || isCheckingPromo || !promoCode}
+                    disabled={promoApplied || promoCodeMutation.isPending || !promoCode}
                   >
-                    {isCheckingPromo ? 'Проверка...' : 'Применить'}
+                    {promoCodeMutation.isPending ? 'Проверка...' : 'Применить'}
                   </Button>
                 </div>
                 {promoApplied && (
