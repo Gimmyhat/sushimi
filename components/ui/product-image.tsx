@@ -49,7 +49,7 @@ export function ProductImage({
     return (
       <div 
         className={cn(
-          'bg-gray-100 flex items-center justify-center',
+          'bg-gray-100 flex items-center justify-center w-full',
           aspectRatioClass[aspectRatio],
           className
         )}
@@ -66,7 +66,7 @@ export function ProductImage({
   return (
     <div 
       className={cn(
-        'bg-gray-100 overflow-hidden',
+        'bg-gray-100 overflow-hidden w-full',
         aspectRatioClass[aspectRatio],
         className
       )}
@@ -87,7 +87,7 @@ export function ProductImage({
         priority={priority}
         sizes={sizes}
         className={cn(
-          'object-cover duration-700 ease-in-out',
+          'object-cover w-full h-full duration-700 ease-in-out',
           isLoading ? 'scale-110 blur-lg grayscale' : 'scale-100 blur-0 grayscale-0'
         )}
         onLoadingComplete={() => setIsLoading(false)}

@@ -402,13 +402,13 @@ export default function MenuPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product, index) => (
               <div key={product.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="h-48 relative">
+                <div className="h-48 w-full relative">
                   <ProductImage
                     src={product.image_url || getProductImage(product.category_slug, product.id)}
                     alt={product.name}
                     priority={index < 3}
                     aspectRatio="landscape"
-                    className="h-full"
+                    className="w-full h-full"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
