@@ -30,7 +30,10 @@ export function ProductImage({
 }: ProductImageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
-
+  
+  // Используем fallback изображение, если основное не загрузилось
+  const fallbackSrc = '/images/default-product.jpg'
+  
   // Определяем соотношение сторон
   const aspectRatioClass = {
     square: 'aspect-square',
@@ -40,6 +43,7 @@ export function ProductImage({
 
   // Обработчик ошибки загрузки изображения
   const handleError = () => {
+    console.error(`Ошибка загрузки изображения: ${src}`)
     setError(true)
     setIsLoading(false)
   }
@@ -56,9 +60,19 @@ export function ProductImage({
         style={{ position: 'relative', overflow: 'hidden' }}
         {...props}
       >
-        <div className="text-gray-400 text-sm text-center p-4">
-          Изображение недоступно
-        </div>
+        <Image
+          src={fallbackSrc}
+          alt={alt}
+          fill={fill}
+          width={!fill ? width : undefined}
+          height={!fill ? height : undefined}
+          className="object-cover w-full h-full"
+          onError={() => {
+            // Если даже fallback не загрузился, показываем текстовую заглушку
+            console.error(`Ошибка загрузки fallback изображения`)
+            setError(true)
+          }}
+        />
       </div>
     )
   }
