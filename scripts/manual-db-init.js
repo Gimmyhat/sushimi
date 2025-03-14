@@ -24,7 +24,9 @@ function createPool() {
     host,
     port,
     database,
-    ssl: false
+    ssl: false,
+    // Добавляем таймаут для подключения
+    connectionTimeoutMillis: 5000
   });
 }
 
@@ -33,15 +35,50 @@ function readSQL(filename) {
   return fs.readFileSync(path.join(__dirname, '..', 'sql', filename), 'utf8');
 }
 
+// Функция для попытки подключения с повторами
+async function connectWithRetry(maxRetries = 5, retryInterval = 3000) {
+  let lastError;
+  let pool;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Попытка подключения к базе данных (${attempt}/${maxRetries})...`);
+      pool = createPool();
+      
+      // Проверка соединения
+      await pool.query('SELECT NOW()');
+      console.log('Соединение с базой данных установлено успешно.');
+      return pool;
+    } catch (error) {
+      lastError = error;
+      console.error(`Ошибка подключения: ${error.message}`);
+      
+      if (pool) {
+        try {
+          await pool.end();
+        } catch (endError) {
+          // Игнорируем ошибки при закрытии пула
+        }
+      }
+      
+      if (attempt < maxRetries) {
+        console.log(`Повторная попытка через ${retryInterval/1000} секунд...`);
+        await new Promise(resolve => setTimeout(resolve, retryInterval));
+      }
+    }
+  }
+  
+  throw new Error(`Не удалось подключиться к базе данных после ${maxRetries} попыток: ${lastError.message}`);
+}
+
 // Основная функция инициализации базы данных
 async function initDatabase() {
   console.log('Подключение к базе данных...');
-  const pool = createPool();
+  let pool;
   
   try {
-    // Проверка соединения
-    await pool.query('SELECT NOW()');
-    console.log('Соединение с базой данных установлено успешно.');
+    // Подключаемся с повторными попытками
+    pool = await connectWithRetry();
     
     // Удаляем существующие таблицы, если они есть
     console.log('Удаление существующих таблиц...');

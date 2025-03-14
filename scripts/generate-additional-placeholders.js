@@ -1,6 +1,3 @@
-// Скрипт для генерации заглушек изображений
-// Создает SVG-файлы для тестирования
-
 const fs = require('fs');
 const path = require('path');
 
@@ -34,43 +31,23 @@ function createPlaceholder(filePath, text) {
 }
 
 // Создаем необходимые директории
-ensureDirExists('public/images');
-ensureDirExists('public/images/categories');
-ensureDirExists('public/images/products');
 ensureDirExists('public/images/products/rolls');
 ensureDirExists('public/images/products/sushi');
 ensureDirExists('public/images/products/sets');
 ensureDirExists('public/images/products/drinks');
-ensureDirExists('public/images/promotions');
 
-// Создаем заглушки для категорий
-const categories = ['rolls', 'sushi', 'sets', 'drinks'];
-categories.forEach(category => {
-  createPlaceholder(`public/images/categories/category-${category}.jpg`, `${category.toUpperCase()}`);
-});
-
-// Создаем заглушки для продуктов
-const products = {
-  rolls: ['philadelphia', 'california', 'dragon', 'spicy-salmon'],
-  sushi: ['nigiri-salmon', 'nigiri-tuna', 'nigiri-shrimp'],
-  sets: ['philadelphia-set', 'california-set', 'assorted-set'],
-  drinks: ['green-tea', 'cola', 'sprite']
+// Создаем заглушки для продуктов по ID
+const productIds = {
+  rolls: ['roll-001', 'roll-002', 'roll-003', 'roll-004', 'roll-005', 'roll-default'],
+  sushi: ['sushi-001', 'sushi-002', 'sushi-003', 'sushi-004', 'sushi-default'],
+  sets: ['set-001', 'set-002', 'set-003', 'set-default'],
+  drinks: ['drink-001', 'drink-002', 'drink-003', 'drink-default']
 };
 
-Object.entries(products).forEach(([category, items]) => {
+Object.entries(productIds).forEach(([category, items]) => {
   items.forEach(item => {
     createPlaceholder(`public/images/products/${category}/${item}.jpg`, item);
   });
 });
 
-// Создаем заглушки для акций
-const promotions = ['promo-first-order', 'promo-free-delivery', 'promo-birthday'];
-promotions.forEach(promo => {
-  createPlaceholder(`public/images/promotions/${promo}.jpg`, promo);
-});
-
-// Создаем дефолтные заглушки
-createPlaceholder('public/images/default-product.jpg', 'Product');
-createPlaceholder('public/images/category-default.jpg', 'Category');
-
-console.log('All placeholder images created successfully!'); 
+console.log('All additional placeholder images created successfully!'); 

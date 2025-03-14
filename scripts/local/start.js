@@ -92,9 +92,48 @@ function startDatabase() {
   }
 }
 
+// Функция для ожидания запуска базы данных
+async function waitForDatabase() {
+  log('Ожидание запуска базы данных...', colors.fg.cyan);
+  
+  // Максимальное количество попыток
+  const maxRetries = 10;
+  // Интервал между попытками в миллисекундах
+  const retryInterval = 2000;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      log(`Попытка подключения к базе данных (${attempt}/${maxRetries})...`, colors.fg.yellow);
+      // Проверяем доступность базы данных
+      execSync('docker exec sushi_db pg_isready -U postgres', { stdio: 'pipe' });
+      log('База данных готова к подключению!', colors.fg.green);
+      return true;
+    } catch (error) {
+      if (attempt < maxRetries) {
+        log(`База данных еще не готова, ожидание ${retryInterval/1000} секунд...`, colors.fg.yellow);
+        // Ждем перед следующей попыткой
+        await new Promise(resolve => setTimeout(resolve, retryInterval));
+      } else {
+        log('Превышено максимальное количество попыток подключения к базе данных.', colors.fg.red);
+        return false;
+      }
+    }
+  }
+  
+  return false;
+}
+
 // Функция для инициализации базы данных
-function initDatabase() {
+async function initDatabase() {
   log('Инициализация базы данных...', colors.fg.cyan);
+  
+  // Ждем, пока база данных будет готова
+  const isDatabaseReady = await waitForDatabase();
+  if (!isDatabaseReady) {
+    log('База данных не готова, пропуск инициализации.', colors.fg.red);
+    process.exit(1);
+  }
+  
   try {
     execSync('node scripts/manual-db-init.js', { stdio: 'inherit' });
     log('База данных успешно инициализирована.', colors.fg.green);
@@ -132,14 +171,31 @@ function startApp() {
   });
 }
 
+// Функция для остановки всех процессов перед запуском
+function stopAllProcesses() {
+  log('Остановка всех процессов перед запуском...', colors.fg.cyan);
+  try {
+    execSync('node scripts/local/stop.js', { stdio: 'inherit' });
+  } catch (error) {
+    log(`Предупреждение: не удалось остановить все процессы: ${error.message}`, colors.fg.yellow);
+    // Продолжаем выполнение, даже если не удалось остановить процессы
+  }
+}
+
 // Основная функция
-function main() {
+async function main() {
   log('\n=== ЗАПУСК ПРОЕКТА SUSHIMI ===\n', colors.fg.magenta + colors.bright);
   
+  // Сначала останавливаем все процессы
+  stopAllProcesses();
+  
   startDatabase();
-  initDatabase();
+  await initDatabase();
   startApp();
 }
 
 // Запуск скрипта
-main(); 
+main().catch(error => {
+  log(`Критическая ошибка: ${error.message}`, colors.fg.red);
+  process.exit(1);
+}); 

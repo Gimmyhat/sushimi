@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useCart } from '@/components/cart-provider'
 import { useCategories, useProductsByCategory } from '@/hooks/api'
 import { Category, Product } from '@/types'
+import { ProductImage } from '@/components/ui/product-image'
 
 // Добавляем тестовые данные напрямую в компонент страницы
 // Данные категорий
@@ -19,28 +20,28 @@ const testCategories = [
     name: 'Роллы',
     slug: 'rolls',
     description: 'Классические и фирменные роллы',
-    image_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=1000&auto=format&fit=crop'
+    image_url: '/images/categories/category-rolls.jpg'
   },
   {
     id: 'cat2',
     name: 'Суши',
     slug: 'sushi',
     description: 'Традиционные японские суши',
-    image_url: 'https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=1000&auto=format&fit=crop'
+    image_url: '/images/categories/category-sushi.jpg'
   },
   {
     id: 'cat3',
     name: 'Сеты',
     slug: 'sets',
     description: 'Наборы из нескольких видов роллов и суши',
-    image_url: 'https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=1000&auto=format&fit=crop'
+    image_url: '/images/categories/category-sets.jpg'
   },
   {
     id: 'cat4',
     name: 'Напитки',
     slug: 'drinks',
     description: 'Напитки к вашему заказу',
-    image_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1000&auto=format&fit=crop'
+    image_url: '/images/categories/category-drinks.jpg'
   }
 ];
 
@@ -258,46 +259,20 @@ const testProducts = {
 
 // Функция для получения изображения продукта
 const getProductImage = (categorySlug: string | undefined, productId: string): string => {
-  if (!categorySlug) return '/images/placeholder.jpg';
+  if (!categorySlug) return '/images/default-product.jpg';
   
-  // Соответствие между id продукта и путем к изображению
-  const productIdToImage: Record<string, string> = {
-    // Роллы
-    'r002': '/images/products/rolls/california.jpg', // Калифорния
-    'r003': '/images/products/rolls/dragon.jpg',     // Дракон
-    'r004': '/images/products/rolls/spicy-salmon.jpg', // Спайси лосось
-    
-    // Суши
-    's001': '/images/products/sushi/nigiri-salmon.jpg', // Нигири с лососем
-    's004': '/images/products/sushi/nigiri-shrimp.jpg', // Нигири с креветкой
-    
-    // Сеты
-    'st002': '/images/products/sets/california-set.jpg', // Сет Калифорния
-    'st003': '/images/products/sets/assorted-set.jpg',   // Сет Ассорти
-    
-    // Напитки
-    'd001': '/images/products/drinks/green-tea.jpg',    // Чай зеленый
-    'd002': '/images/products/drinks/cola.jpg',         // Кока-кола
-    'd003': '/images/products/drinks/sprite.jpg',       // Спрайт
-  };
-
-  // Проверяем соответствие по ID продукта
-  if (productIdToImage[productId]) {
-    return productIdToImage[productId];
-  }
-  
-  // Для продуктов без конкретных изображений используем категорию
+  // Определяем путь к изображению на основе категории и ID продукта
   switch (categorySlug) {
     case 'rolls':
-      return `/images/categories/category-rolls.jpg`;
+      return `/images/products/rolls/${productId.includes('r') ? productId.replace('r', 'roll-') : 'roll-default'}.jpg`;
     case 'sushi':
-      return `/images/categories/category-sushi.jpg`;
+      return `/images/products/sushi/${productId.includes('s') ? productId.replace('s', 'sushi-') : 'nigiri-salmon'}.jpg`;
     case 'sets':
-      return `/images/categories/category-sets.jpg`;
+      return `/images/products/sets/${productId.includes('st') ? productId.replace('st', 'set-') : 'assorted-set'}.jpg`;
     case 'drinks':
-      return `/images/categories/category-drinks.jpg`;
+      return `/images/products/drinks/${productId.includes('d') ? productId.replace('d', 'drink-') : 'cola'}.jpg`;
     default:
-      return `/images/categories/category-default.jpg`;
+      return '/images/default-product.jpg';
   }
 };
 
@@ -379,14 +354,13 @@ export default function MenuPage() {
         <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
           <div className="flex flex-wrap gap-3 mb-4 items-center">
             {categories.map((category) => (
-              <TabsTrigger
+              <button
                 key={category.slug}
-                value={category.slug}
                 onClick={() => setActiveCategory(category.slug)}
                 className={`px-4 py-2 rounded ${activeCategory === category.slug ? 'bg-red-500 text-white' : 'bg-gray-100'}`}
               >
                 {category.name}
-              </TabsTrigger>
+              </button>
             ))}
           </div>
         </div>
@@ -428,13 +402,13 @@ export default function MenuPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product, index) => (
               <div key={product.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="h-48 bg-gray-200 relative">
-                  <Image
+                <div className="h-48 relative">
+                  <ProductImage
                     src={product.image_url || getProductImage(product.category_slug, product.id)}
                     alt={product.name}
-                    fill
                     priority={index < 3}
-                    className="object-cover"
+                    aspectRatio="landscape"
+                    className="h-full"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
